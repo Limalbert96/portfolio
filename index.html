@@ -848,9 +848,15 @@
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             for (let i = 0; i < particles.length; i++) {
                 const p = particles[i];
-                const dx = pmouseX - p.x, dy = pmouseY - p.y, dist = Math.sqrt(dx*dx+dy*dy);
-                if (dist < 200) { p.vx += dx * 0.00003; p.vy += dy * 0.00003; }
-                p.vx *= 0.999; p.vy *= 0.999; p.update(); p.draw();
+                // Cursor gently pushes particles AWAY (repel) so they spread out instead of clumping toward it
+                const dx = p.x - pmouseX, dy = p.y - pmouseY, dist = Math.sqrt(dx*dx+dy*dy);
+                if (dist < 160 && dist > 0.01) { const f = (160 - dist) / 160 * 0.03; p.vx += (dx / dist) * f; p.vy += (dy / dist) * f; }
+                p.vx *= 0.99; p.vy *= 0.99;
+                // Clamp speed so no particle runs away, and keep a floor so none ever stall in one spot
+                let sp = Math.sqrt(p.vx*p.vx + p.vy*p.vy);
+                if (sp > 0.5) { p.vx = p.vx / sp * 0.5; p.vy = p.vy / sp * 0.5; }
+                if (sp < 0.08) { p.vx += (Math.random() - 0.5) * 0.12; p.vy += (Math.random() - 0.5) * 0.12; }
+                p.update(); p.draw();
                 for (let j = i + 1; j < particles.length; j++) {
                     const dx2 = p.x - particles[j].x, dy2 = p.y - particles[j].y, d = Math.sqrt(dx2*dx2+dy2*dy2);
                     if (d < 150) { ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(particles[j].x, particles[j].y); ctx.strokeStyle = `rgba(108,99,255,${0.13*(1-d/150)})`; ctx.lineWidth = 0.6; ctx.stroke(); }
