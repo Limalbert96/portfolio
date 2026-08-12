@@ -831,14 +831,19 @@
         const canvas = document.getElementById('bg-canvas');
         const ctx = canvas.getContext('2d');
         let particles = [];
-        function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
-        resize(); window.addEventListener('resize', resize);
         class Particle {
             constructor() { this.x = Math.random() * canvas.width; this.y = Math.random() * canvas.height; this.vx = (Math.random() - 0.5) * 0.3; this.vy = (Math.random() - 0.5) * 0.3; this.radius = Math.random() * 1.5 + 0.5; }
             update() { this.x += this.vx; this.y += this.vy; if (this.x < 0 || this.x > canvas.width) this.vx *= -1; if (this.y < 0 || this.y > canvas.height) this.vy *= -1; }
             draw() { ctx.beginPath(); ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2); ctx.fillStyle = 'rgba(108, 99, 255, 0.4)'; ctx.fill(); }
         }
-        for (let i = 0; i < 60; i++) particles.push(new Particle());
+        // Density scales with the viewport so the mesh fills the whole black area, not just one cluster
+        function seedParticles() {
+            const count = Math.min(170, Math.max(60, Math.floor((canvas.width * canvas.height) / 11000)));
+            particles = [];
+            for (let i = 0; i < count; i++) particles.push(new Particle());
+        }
+        function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; seedParticles(); }
+        resize(); window.addEventListener('resize', resize);
         function animate() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             for (let i = 0; i < particles.length; i++) {
@@ -848,7 +853,7 @@
                 p.vx *= 0.999; p.vy *= 0.999; p.update(); p.draw();
                 for (let j = i + 1; j < particles.length; j++) {
                     const dx2 = p.x - particles[j].x, dy2 = p.y - particles[j].y, d = Math.sqrt(dx2*dx2+dy2*dy2);
-                    if (d < 150) { ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(particles[j].x, particles[j].y); ctx.strokeStyle = `rgba(108,99,255,${0.08*(1-d/150)})`; ctx.lineWidth = 0.5; ctx.stroke(); }
+                    if (d < 150) { ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(particles[j].x, particles[j].y); ctx.strokeStyle = `rgba(108,99,255,${0.13*(1-d/150)})`; ctx.lineWidth = 0.6; ctx.stroke(); }
                 }
             }
             requestAnimationFrame(animate);
