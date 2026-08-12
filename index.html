@@ -82,8 +82,8 @@
             will-change: transform;
         }
         @keyframes wordWave {
-            0%, 68%, 100% { transform: scale(1); color: inherit; }
-            84% { transform: scale(1.09); color: var(--accent2); }
+            0%, 66%, 100% { transform: scale(1); color: inherit; }
+            83% { transform: scale(1.13); color: var(--accent2); }
         }
         /* Desktop bonus: hovering overrides the wave with a stronger, held zoom */
         .hero-left h1 .zoom-word:hover {
@@ -515,11 +515,32 @@
             .metric-box .mb-value { font-size: 1.4rem; }
             .venn-circle { width: 130px; height: 130px; font-size: 0.68rem; }
             .venn-center { width: 80px; height: 80px; font-size: 0.6rem; }
+            /* Clean, readable top bar on phones: solid blurred bar, no blend ghosting, no cramped links */
+            nav {
+                padding: 14px 18px;
+                mix-blend-mode: normal;
+                background: rgba(3, 3, 3, 0.72);
+                -webkit-backdrop-filter: blur(12px);
+                backdrop-filter: blur(12px);
+                border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+            }
+            .nav-name { font-size: 0.85rem; white-space: nowrap; }
+            .nav-right { gap: 12px; }
+            .nav-right .nav-link { display: none; }
+            .nav-status { font-size: 0.66rem; white-space: nowrap; }
         }
+
+        /* Color-only pulses used when the visitor has Reduce Motion on (no movement, but still alive) */
+        @keyframes wordWaveRM { 0%, 68%, 100% { color: inherit; } 84% { color: var(--accent2); } }
+        @keyframes wordWaveQRM { 0%, 70%, 100% { color: var(--dim); } 85% { color: var(--text); } }
+        @keyframes nodeGlowRM { 0%, 100% { box-shadow: 0 0 0 rgba(108,99,255,0); } 50% { box-shadow: 0 0 16px rgba(108,99,255,0.22); } }
 
         @media (prefers-reduced-motion: reduce) {
             .hero-left h1 .line span { animation: none; opacity: 1; transform: none; }
-            .hero-left h1 .zoom-word, .hero-question .hover-word, .skill-node { animation: none; }
+            /* Swap movement for a gentle color/glow pulse so the words and bubbles still animate */
+            .hero-left h1 .zoom-word { animation: wordWaveRM 5.5s ease-in-out infinite; transform: none; }
+            .hero-question .hover-word { animation: wordWaveQRM 5.5s ease-in-out infinite; transform: none; }
+            .skill-node { animation: nodeGlowRM 6s ease-in-out infinite; transform: none; }
             .hero-subtitle, .hero-statement, .hero-right, .hero-question { animation: none; opacity: 1; }
             .highlight-word::after { animation: none; transform: scaleX(1); }
             .marquee-track { animation: none; }
