@@ -32,15 +32,16 @@
             body { cursor: none; }
             .cursor {
                 display: block;
-                width: 20px; height: 20px;
-                border: 1.5px solid var(--accent);
+                width: 26px; height: 26px;
+                border: 2px solid var(--accent);
                 border-radius: 50%;
                 position: fixed; top: 0; left: 0; pointer-events: none; z-index: 9999;
                 transform: translate(-50%, -50%);
-                transition: width 0.2s, height 0.2s, border-color 0.2s;
+                transition: width 0.2s, height 0.2s, border-color 0.2s, box-shadow 0.2s;
+                box-shadow: 0 0 12px rgba(108, 99, 255, 0.5);
                 will-change: transform;
             }
-            .cursor.hover { width: 48px; height: 48px; border-color: var(--accent2); }
+            .cursor.hover { width: 50px; height: 50px; border-color: var(--accent2); box-shadow: 0 0 18px rgba(0, 212, 170, 0.55); }
             a, button, input[type="range"], .cta-btn, .skill-node, .nav-link { cursor: none; }
             .cursor-dot {
                 display: block;
@@ -549,10 +550,10 @@
                 backdrop-filter: blur(12px);
                 border-bottom: 1px solid rgba(255, 255, 255, 0.06);
             }
-            .nav-name { font-size: 0.85rem; white-space: nowrap; }
-            .nav-right { gap: 12px; }
-            .nav-right .nav-link { display: none; }
-            .nav-status { font-size: 0.66rem; white-space: nowrap; }
+            .nav-name { font-size: 0.8rem; white-space: nowrap; }
+            .nav-right { gap: 11px; }
+            .nav-right .nav-link { display: inline; font-size: 0.66rem; opacity: 0.8; white-space: nowrap; }
+            .nav-status { display: none; } /* hide the "Available" pill on phones so the quick-links fit */
         }
 
         /* Color-only pulses used when the visitor has Reduce Motion on (no movement, but still alive) */
