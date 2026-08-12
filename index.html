@@ -26,6 +26,31 @@
             overflow-x: hidden;
         }
 
+        /* Custom "bubble" cursor — only on real mouse pointers; touch/trackpad-only devices keep the native cursor */
+        .cursor, .cursor-dot { display: none; }
+        @media (hover: hover) and (pointer: fine) {
+            body { cursor: none; }
+            .cursor {
+                display: block;
+                width: 20px; height: 20px;
+                border: 1.5px solid var(--accent);
+                border-radius: 50%;
+                position: fixed; top: 0; left: 0; pointer-events: none; z-index: 9999;
+                transform: translate(-50%, -50%);
+                transition: width 0.2s, height 0.2s, border-color 0.2s;
+                will-change: transform;
+            }
+            .cursor.hover { width: 48px; height: 48px; border-color: var(--accent2); }
+            a, button, input[type="range"], .cta-btn, .skill-node, .nav-link { cursor: none; }
+            .cursor-dot {
+                display: block;
+                width: 4px; height: 4px; background: var(--accent); border-radius: 50%;
+                position: fixed; top: 0; left: 0; pointer-events: none; z-index: 9999;
+                transform: translate(-50%, -50%);
+                will-change: transform;
+            }
+        }
+
         #bg-canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; opacity: 0.6; }
         .page { position: relative; z-index: 1; }
 
@@ -553,6 +578,8 @@
     </style>
 </head>
 <body>
+    <div class="cursor" id="cursor"></div>
+    <div class="cursor-dot" id="cursor-dot"></div>
     <canvas id="bg-canvas"></canvas>
 
     <div class="page">
@@ -835,6 +862,28 @@
         // Track pointer position for the background particle interaction
         let pmouseX = window.innerWidth / 2, pmouseY = window.innerHeight / 2;
         window.addEventListener('pointermove', (e) => { pmouseX = e.clientX; pmouseY = e.clientY; }, { passive: true });
+
+        // Custom "bubble" cursor — ring trails the mouse, dot tracks exactly, ring swells on hover.
+        // Only runs on real mouse pointers; under Reduce Motion the ring follows instantly (no trail).
+        const cursor = document.getElementById('cursor');
+        const dot = document.getElementById('cursor-dot');
+        if (cursor && dot && window.matchMedia('(hover: hover) and (pointer: fine)').matches) {
+            const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+            let rx = pmouseX, ry = pmouseY; // ring starts at real pointer position, so it never slides in from the corner
+            window.addEventListener('pointermove', (e) => {
+                dot.style.transform = `translate(${e.clientX}px, ${e.clientY}px) translate(-50%, -50%)`;
+            }, { passive: true });
+            (function ringLoop() {
+                const ease = reduceMotion ? 1 : 0.28;
+                rx += (pmouseX - rx) * ease; ry += (pmouseY - ry) * ease;
+                cursor.style.transform = `translate(${rx}px, ${ry}px) translate(-50%, -50%)`;
+                requestAnimationFrame(ringLoop);
+            })();
+            document.querySelectorAll('a, button, .metric-box, .exp-block, .skill-node, .vertical-chip, .award-card, .hover-word, .zoom-word, input[type=range], .cta-btn').forEach(el => {
+                el.addEventListener('mouseenter', () => cursor.classList.add('hover'));
+                el.addEventListener('mouseleave', () => cursor.classList.remove('hover'));
+            });
+        }
 
         // Stagger the ambient word-wave so it ripples across the line (works on every device, no hover needed)
         document.querySelectorAll('.hero-left h1 .zoom-word').forEach((el, i) => {
