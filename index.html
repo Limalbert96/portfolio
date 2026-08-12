@@ -72,14 +72,22 @@
         .hero-left h1 .line:nth-child(2) span { animation-delay: 0.1s; }
         .hero-left h1 .line:nth-child(3) span { animation-delay: 0.2s; }
 
-        /* Hero title hover zoom (like Academy) */
+        /* Hero title: ambient wave that plays on every device (mobile has no hover) */
         .hero-left h1 .zoom-word {
             display: inline-block;
             transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), color 0.3s;
             cursor: default;
+            animation: wordWave 5.5s ease-in-out infinite;
+            animation-delay: calc(2s + var(--d, 0s));
+            will-change: transform;
         }
-        .hero-left h1 .zoom-word:hover,
-        .hero-left h1 .zoom-word.is-active {
+        @keyframes wordWave {
+            0%, 68%, 100% { transform: scale(1); color: inherit; }
+            84% { transform: scale(1.09); color: var(--accent2); }
+        }
+        /* Desktop bonus: hovering overrides the wave with a stronger, held zoom */
+        .hero-left h1 .zoom-word:hover {
+            animation: none;
             transform: scale(1.15);
             color: var(--accent2);
         }
@@ -159,9 +167,16 @@
             display: inline-block;
             transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
             cursor: default;
+            animation: wordWaveQ 5.5s ease-in-out infinite;
+            animation-delay: calc(2.2s + var(--d, 0s));
+            will-change: transform;
         }
-        .hero-question .hover-word:hover,
-        .hero-question .hover-word.is-active {
+        @keyframes wordWaveQ {
+            0%, 70%, 100% { transform: scale(1) translateY(0); color: var(--dim); }
+            85% { transform: scale(1.1) translateY(-1px); color: var(--text); }
+        }
+        .hero-question .hover-word:hover {
+            animation: none;
             color: var(--text);
             transform: scale(1.12) translateY(-1px);
         }
@@ -496,6 +511,7 @@
 
         @media (prefers-reduced-motion: reduce) {
             .hero-left h1 .line span { animation: none; opacity: 1; transform: none; }
+            .hero-left h1 .zoom-word, .hero-question .hover-word { animation: none; }
             .hero-subtitle, .hero-statement, .hero-right, .hero-question { animation: none; opacity: 1; }
             .highlight-word::after { animation: none; transform: scaleX(1); }
             .marquee-track { animation: none; }
@@ -791,11 +807,12 @@
         let pmouseX = window.innerWidth / 2, pmouseY = window.innerHeight / 2;
         window.addEventListener('pointermove', (e) => { pmouseX = e.clientX; pmouseY = e.clientY; }, { passive: true });
 
-        // Reliable hover/tap highlight for hero words across mouse, pen, and touch
-        document.querySelectorAll('.zoom-word, .hover-word').forEach(el => {
-            el.addEventListener('pointerenter', () => el.classList.add('is-active'));
-            el.addEventListener('pointerleave', () => el.classList.remove('is-active'));
-            el.addEventListener('pointercancel', () => el.classList.remove('is-active'));
+        // Stagger the ambient word-wave so it ripples across the line (works on every device, no hover needed)
+        document.querySelectorAll('.hero-left h1 .zoom-word').forEach((el, i) => {
+            el.style.setProperty('--d', (i * 0.22) + 's');
+        });
+        document.querySelectorAll('.hero-question .hover-word').forEach((el, i) => {
+            el.style.setProperty('--d', (i * 0.16) + 's');
         });
 
         // Background canvas
