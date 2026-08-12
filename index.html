@@ -66,6 +66,9 @@
         .nav-link { font-size: 0.75rem; color: white; text-decoration: none; opacity: 0.6; transition: opacity 0.2s; }
         .nav-link:hover { opacity: 1; }
         .nav-status { display: flex; align-items: center; gap: 6px; font-size: 0.7rem; color: white; opacity: 0.6; }
+        /* Hamburger + slide-down menu: hidden on desktop, shown on phones */
+        .nav-toggle { display: none; }
+        .nav-menu { display: none; }
         .pulse-dot { width: 6px; height: 6px; background: var(--accent2); border-radius: 50%; animation: pulse 2s infinite; }
         @keyframes pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.3; transform: scale(0.8); } }
 
@@ -550,10 +553,35 @@
                 backdrop-filter: blur(12px);
                 border-bottom: 1px solid rgba(255, 255, 255, 0.06);
             }
-            .nav-name { font-size: 0.8rem; white-space: nowrap; }
-            .nav-right { gap: 11px; }
-            .nav-right .nav-link { display: inline; font-size: 0.66rem; opacity: 0.8; white-space: nowrap; }
-            .nav-status { display: none; } /* hide the "Available" pill on phones so the quick-links fit */
+            .nav-name { font-size: 0.85rem; white-space: nowrap; }
+            .nav-right { gap: 14px; }
+            .nav-right .nav-link { display: none; }        /* links move into the hamburger menu */
+            .nav-status { display: flex; font-size: 0.66rem; }  /* keep the "Available" pill */
+            .nav-toggle {
+                display: flex; flex-direction: column; justify-content: center; gap: 5px;
+                width: 26px; height: 22px; padding: 0; background: none; border: none; cursor: pointer;
+            }
+            .nav-toggle span { display: block; width: 22px; height: 2px; background: white; border-radius: 2px; transition: transform 0.3s, opacity 0.3s; }
+            .nav-toggle.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+            .nav-toggle.open span:nth-child(2) { opacity: 0; }
+            .nav-toggle.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+            .nav-menu {
+                display: block;
+                position: fixed; top: 0; left: 0; right: 0; z-index: 90;
+                padding: 78px 24px 26px;
+                background: rgba(3, 3, 3, 0.94);
+                -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px);
+                border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+                transform: translateY(-105%);
+                transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+            }
+            .nav-menu.open { transform: translateY(0); }
+            .nav-menu-link {
+                display: block; color: white; text-decoration: none;
+                font-family: 'Space Grotesk', sans-serif; font-size: 1.15rem; font-weight: 500;
+                padding: 15px 0; border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+            }
+            .nav-menu-link:last-child { border-bottom: none; }
         }
 
         /* Color-only pulses used when the visitor has Reduce Motion on (no movement, but still alive) */
@@ -592,8 +620,15 @@
                 <a href="#cost" class="nav-link">The Cost</a>
                 <a href="#contact" class="nav-link">Contact</a>
                 <div class="nav-status"><span class="pulse-dot"></span> Available</div>
+                <button class="nav-toggle" id="nav-toggle" aria-label="Open menu" aria-expanded="false"><span></span><span></span><span></span></button>
             </div>
         </nav>
+        <div class="nav-menu" id="nav-menu">
+            <a href="#work" class="nav-menu-link">Work</a>
+            <a href="#skills" class="nav-menu-link">Skills</a>
+            <a href="#cost" class="nav-menu-link">The Cost</a>
+            <a href="#contact" class="nav-menu-link">Contact</a>
+        </div>
 
         <section class="hero">
             <div class="hero-left">
@@ -897,6 +932,24 @@
         document.querySelectorAll('.skill-node').forEach((el) => {
             el.style.setProperty('--d', (-Math.random() * 6).toFixed(2) + 's');
         });
+
+        // Mobile hamburger menu
+        const navToggle = document.getElementById('nav-toggle');
+        const navMenu = document.getElementById('nav-menu');
+        if (navToggle && navMenu) {
+            navToggle.addEventListener('click', () => {
+                const open = navMenu.classList.toggle('open');
+                navToggle.classList.toggle('open', open);
+                navToggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+                navToggle.setAttribute('aria-label', open ? 'Close menu' : 'Open menu');
+            });
+            navMenu.querySelectorAll('a').forEach(a => a.addEventListener('click', () => {
+                navMenu.classList.remove('open');
+                navToggle.classList.remove('open');
+                navToggle.setAttribute('aria-expanded', 'false');
+                navToggle.setAttribute('aria-label', 'Open menu');
+            }));
+        }
 
         // Background canvas
         const canvas = document.getElementById('bg-canvas');
