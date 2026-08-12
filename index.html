@@ -1,0 +1,895 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Albert Lim | Senior Solutions Architect</title>
+    <meta name="description" content="Senior Solutions Architect. $10M+ enterprise growth. Full lifecycle ownership from first demo to expansion.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #030303;
+            --text: #f0f0f0;
+            --dim: #777;
+            --accent: #6c63ff;
+            --accent2: #00d4aa;
+            --warm: #ff6b35;
+            --yellow: #c9a227;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            overflow-x: hidden;
+            cursor: none;
+        }
+
+        /* Custom cursor */
+        .cursor {
+            width: 20px; height: 20px;
+            border: 1.5px solid var(--accent);
+            border-radius: 50%;
+            position: fixed; pointer-events: none; z-index: 9999;
+            transition: transform 0.1s ease, width 0.2s, height 0.2s, border-color 0.2s;
+            transform: translate(-50%, -50%);
+        }
+        .cursor.hover { width: 48px; height: 48px; border-color: var(--accent2); }
+        .cursor-dot {
+            width: 4px; height: 4px; background: var(--accent); border-radius: 50%;
+            position: fixed; pointer-events: none; z-index: 9999; transform: translate(-50%, -50%);
+        }
+
+        #bg-canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; opacity: 0.6; }
+        .page { position: relative; z-index: 1; }
+
+        /* Nav */
+        nav {
+            position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+            padding: 24px 40px; display: flex; justify-content: space-between; align-items: center;
+            mix-blend-mode: difference;
+        }
+        .nav-name { font-family: 'Space Grotesk', sans-serif; font-weight: 600; font-size: 0.9rem; color: white; text-decoration: none; }
+        .nav-right { display: flex; align-items: center; gap: 24px; }
+        .nav-link { font-size: 0.75rem; color: white; text-decoration: none; opacity: 0.6; transition: opacity 0.2s; }
+        .nav-link:hover { opacity: 1; }
+        .nav-status { display: flex; align-items: center; gap: 6px; font-size: 0.7rem; color: white; opacity: 0.6; }
+        .pulse-dot { width: 6px; height: 6px; background: var(--accent2); border-radius: 50%; animation: pulse 2s infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.3; transform: scale(0.8); } }
+
+        /* === HERO === */
+        .hero {
+            min-height: 100vh;
+            display: grid;
+            grid-template-columns: 1.2fr 0.8fr;
+            align-items: center;
+            padding: 0 60px;
+            max-width: 1400px;
+            margin: 0 auto;
+            gap: 60px;
+        }
+
+        .hero-left h1 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: clamp(3.5rem, 8vw, 7rem);
+            font-weight: 700;
+            line-height: 0.95;
+            letter-spacing: -0.05em;
+            margin-bottom: 12px;
+        }
+
+        .hero-left h1 .line { display: block; overflow: hidden; }
+        .hero-left h1 .line span {
+            display: inline-block;
+            animation: slideUp 1s cubic-bezier(0.16, 1, 0.3, 1) both;
+        }
+        .hero-left h1 .line:nth-child(2) span { animation-delay: 0.1s; }
+        .hero-left h1 .line:nth-child(3) span { animation-delay: 0.2s; }
+
+        /* Hero title hover zoom (like Academy) */
+        .hero-left h1 .zoom-word {
+            display: inline-block;
+            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), color 0.3s;
+            cursor: default;
+        }
+        .hero-left h1 .zoom-word:hover {
+            transform: scale(1.15);
+            color: var(--accent2);
+        }
+
+        @keyframes slideUp { from { transform: translateY(100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+        /* Yellow highlight like Academy */
+        .highlight-word {
+            position: relative;
+            display: inline-block;
+        }
+        .highlight-word::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: -4px;
+            right: -4px;
+            height: 35%;
+            background: var(--yellow);
+            z-index: -1;
+            transform: scaleX(0);
+            transform-origin: left;
+            animation: highlightIn 0.8s 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        @keyframes highlightIn { to { transform: scaleX(1); } }
+
+        .hero-pun {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.78rem;
+            color: var(--accent2);
+            line-height: 1.5;
+            margin-top: 18px;
+            max-width: 460px;
+            opacity: 0;
+            animation: fadeIn 0.8s 1.6s both;
+        }
+        .hero-subtitle {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            color: var(--accent);
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            margin: 14px 0 28px;
+            opacity: 0;
+            animation: fadeIn 0.8s 0.6s both;
+        }
+        @keyframes fadeIn { to { opacity: 1; } }
+
+        .hero-statement {
+            font-size: 1.05rem;
+            color: var(--dim);
+            line-height: 1.8;
+            max-width: 480px;
+            opacity: 0;
+            animation: fadeIn 0.8s 0.8s both;
+        }
+        .hero-statement strong { color: var(--text); }
+
+        /* Blinking cursor question */
+        .hero-question {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+            color: var(--dim);
+            margin-top: 36px;
+            opacity: 0;
+            animation: fadeIn 0.8s 1.4s both;
+            line-height: 1.5;
+        }
+
+        .blink-cursor {
+            color: var(--accent);
+            animation: blink 1s step-end infinite;
+        }
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+
+        .hero-question .hover-word {
+            display: inline-block;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            cursor: default;
+        }
+        .hero-question .hover-word:hover {
+            color: var(--text);
+            transform: scale(1.12) translateY(-1px);
+        }
+
+        /* Hero right: photo + metrics */
+        .hero-right {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 32px;
+            opacity: 0;
+            animation: fadeIn 1s 1s both;
+        }
+
+        .photo-wrapper {
+            position: relative;
+            width: 220px;
+            height: 220px;
+        }
+
+        .photo-wrapper img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 50%;
+            position: relative;
+            z-index: 2;
+        }
+
+        .photo-wrapper::before {
+            content: '';
+            position: absolute;
+            inset: -6px;
+            border-radius: 50%;
+            background: conic-gradient(var(--accent), var(--accent2), var(--accent));
+            animation: spin 6s linear infinite;
+            z-index: 1;
+        }
+
+        .photo-wrapper::after {
+            content: '';
+            position: absolute;
+            inset: -20px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(108, 99, 255, 0.15), transparent 70%);
+            z-index: 0;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .hero-metrics {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            width: 100%;
+        }
+
+        .metric-box {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 16px;
+            padding: 32px;
+            backdrop-filter: blur(8px);
+            transition: all 0.3s ease;
+            overflow: hidden;
+            position: relative;
+        }
+        .metric-box::before {
+            content: ''; position: absolute; inset: 0;
+            background: linear-gradient(135deg, rgba(108, 99, 255, 0.05), transparent);
+            opacity: 0; transition: opacity 0.3s;
+        }
+        .metric-box:hover::before { opacity: 1; }
+        .metric-box:hover { border-color: rgba(108, 99, 255, 0.3); transform: translateY(-2px); }
+
+        .metric-box .mb-value {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 2.6rem; font-weight: 700; letter-spacing: -0.03em; margin-bottom: 6px;
+            background: linear-gradient(135deg, var(--text), var(--accent2));
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        }
+        .metric-box .mb-label { font-size: 0.8rem; color: var(--dim); line-height: 1.4; }
+
+        .verticals-strip { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
+        .vertical-chip {
+            font-size: 0.8rem; padding: 8px 16px;
+            border: 1px solid rgba(255,255,255,0.1); border-radius: 100px; color: var(--dim);
+            transition: all 0.2s;
+        }
+        .vertical-chip:hover { border-color: var(--accent); color: var(--text); background: rgba(108, 99, 255, 0.06); }
+
+        /* === SECTIONS === */
+        .section {
+            padding: 140px 60px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .section-grid {
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            gap: 80px;
+            align-items: start;
+        }
+
+        /* BIGGER, MORE LEGIBLE SECTION LABELS */
+        .section-label {
+            position: sticky;
+            top: 100px;
+        }
+
+        .section-label .sl-num {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 4rem;
+            font-weight: 700;
+            color: rgba(255,255,255,0.08);
+            line-height: 1;
+            letter-spacing: -0.04em;
+        }
+
+        .section-label .sl-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text);
+            margin-top: 8px;
+            letter-spacing: -0.01em;
+        }
+
+        .section-content h2 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: clamp(1.8rem, 3.5vw, 2.8rem);
+            font-weight: 700;
+            letter-spacing: -0.03em;
+            line-height: 1.15;
+            margin-bottom: 24px;
+        }
+
+        .section-content p {
+            font-size: 0.95rem; color: var(--dim); line-height: 1.9; margin-bottom: 16px; max-width: 540px;
+        }
+        .section-content p strong { color: var(--text); }
+
+        /* EXPERIENCE */
+        .exp-blocks { display: flex; flex-direction: column; gap: 32px; margin-top: 48px; }
+
+        .exp-block {
+            background: rgba(255,255,255,0.02);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 20px; padding: 40px;
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative; overflow: hidden;
+        }
+        .exp-block::after {
+            content: ''; position: absolute; top: 0; left: 0; width: 3px; height: 100%;
+            background: linear-gradient(to bottom, var(--accent), var(--accent2));
+            border-radius: 2px; opacity: 0; transition: opacity 0.3s;
+        }
+        .exp-block:hover { border-color: rgba(108, 99, 255, 0.2); transform: translateX(4px); }
+        .exp-block:hover::after { opacity: 1; }
+
+        .exp-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 12px; }
+        .exp-title { font-family: 'Space Grotesk', sans-serif; font-size: 1.3rem; font-weight: 600; }
+        .exp-date { font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; color: var(--dim); }
+        .exp-company { font-size: 0.85rem; color: var(--accent); margin-bottom: 16px; }
+        .exp-desc { font-size: 0.88rem; color: var(--dim); line-height: 1.8; }
+
+        .exp-highlights {
+            display: flex; gap: 28px; margin-top: 20px; padding-top: 20px;
+            border-top: 1px solid rgba(255,255,255,0.04);
+        }
+        .exp-hl { text-align: center; }
+        .exp-hl-val { font-family: 'Space Grotesk', sans-serif; font-size: 1.4rem; font-weight: 700; color: var(--accent2); }
+        .exp-hl-label { font-size: 0.65rem; color: var(--dim); margin-top: 2px; }
+
+        /* === SKILLS ORBITAL === */
+        .skills-orbital {
+            position: relative;
+            height: 400px;
+            margin-top: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .orbital-center {
+            position: absolute;
+            width: 120px; height: 120px; border-radius: 50%;
+            background: radial-gradient(circle, rgba(108, 99, 255, 0.15), transparent);
+            border: 1px solid rgba(108, 99, 255, 0.2);
+            display: flex; align-items: center; justify-content: center;
+            font-family: 'Space Grotesk', sans-serif; font-weight: 600; font-size: 0.8rem;
+        }
+
+        .orbital-ring { position: absolute; border-radius: 50%; border: 1px solid rgba(255,255,255,0.04); }
+        .orbital-ring:nth-child(2) { width: 240px; height: 240px; }
+        .orbital-ring:nth-child(3) { width: 360px; height: 360px; }
+
+        .skill-node {
+            position: absolute; padding: 8px 16px;
+            background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 100px; font-size: 0.72rem; font-weight: 500;
+            white-space: nowrap; transition: all 0.3s; cursor: default;
+        }
+        .skill-node:hover { background: rgba(108, 99, 255, 0.1); border-color: var(--accent); transform: scale(1.1); }
+        .skill-node.cat-obs { --node-color: #6c63ff; }
+        .skill-node.cat-cloud { --node-color: #00d4aa; }
+        .skill-node.cat-gtm { --node-color: #ff6b35; }
+        .skill-node::before { content: ''; width: 5px; height: 5px; border-radius: 50%; background: var(--node-color, var(--dim)); display: inline-block; margin-right: 6px; }
+
+        /* === CALCULATOR === */
+        .calc-intro { font-size: 0.95rem; color: var(--dim); line-height: 1.9; max-width: 560px; margin-bottom: 8px; }
+        .calc-intro strong { color: var(--text); }
+        .calc-wrap {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 40px; align-items: start;
+        }
+        .calc-inputs, .calc-results {
+            background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 20px; padding: 32px;
+        }
+        .calc-inputs h3, .calc-results h3 {
+            font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; text-transform: uppercase;
+            letter-spacing: 0.12em; color: var(--accent); margin-bottom: 24px;
+        }
+        .calc-results h3 { color: var(--warm); }
+        .input-group { margin-bottom: 26px; }
+        .input-group:last-child { margin-bottom: 0; }
+        .input-label { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 12px; font-size: 0.82rem; color: var(--dim); }
+        .input-value { font-family: 'Space Grotesk', sans-serif; font-weight: 600; font-size: 0.95rem; color: var(--accent2); }
+        input[type="range"] {
+            -webkit-appearance: none; appearance: none; width: 100%; height: 4px; border-radius: 4px;
+            background: rgba(255,255,255,0.1); outline: none; cursor: none;
+        }
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none; appearance: none; width: 18px; height: 18px; border-radius: 50%;
+            background: var(--accent); cursor: pointer; transition: transform 0.15s, box-shadow 0.15s;
+            box-shadow: 0 0 0 0 rgba(108,99,255,0.3);
+        }
+        input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.2); box-shadow: 0 0 0 8px rgba(108,99,255,0.15); }
+        input[type="range"]::-moz-range-thumb { width: 18px; height: 18px; border: none; border-radius: 50%; background: var(--accent); cursor: pointer; }
+
+        .result-card { margin-bottom: 24px; padding-bottom: 24px; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .result-card:last-child { margin-bottom: 0; padding-bottom: 0; border-bottom: none; }
+        .result-label { font-size: 0.8rem; color: var(--dim); margin-bottom: 6px; }
+        .result-value { font-family: 'Space Grotesk', sans-serif; font-size: 3rem; font-weight: 700; letter-spacing: -0.03em; line-height: 1; }
+        .result-value.risk { color: var(--warm); }
+        .result-value.save { background: linear-gradient(135deg, var(--text), var(--accent2)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .result-detail { font-size: 0.78rem; color: var(--dim); line-height: 1.6; margin-top: 10px; }
+        .result-formula {
+            margin-top: 14px; padding: 12px 14px; background: rgba(0,0,0,0.3);
+            border: 1px solid rgba(255,255,255,0.05); border-radius: 8px;
+        }
+        .result-formula .formula-label {
+            display: block; font-family: 'JetBrains Mono', monospace; font-size: 0.6rem;
+            text-transform: uppercase; letter-spacing: 0.1em; color: var(--dim); margin-bottom: 6px;
+        }
+        .result-formula span:last-child { font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; color: var(--accent2); line-height: 1.6; }
+        .calc-method { margin-top: 28px; font-size: 0.72rem; color: var(--dim); line-height: 1.7; max-width: 620px; }
+        .calc-method strong { color: var(--text); }
+        .calc-sources { margin-top: 12px; font-size: 0.68rem; color: var(--dim); line-height: 1.7; max-width: 620px; }
+        .calc-sources strong { color: var(--text); }
+        .calc-sources a { color: var(--accent2); text-decoration: none; border-bottom: 1px solid rgba(0,212,170,0.3); transition: border-color 0.2s; }
+        .calc-sources a:hover { border-color: var(--accent2); }
+
+        @media (max-width: 900px) { .calc-wrap { grid-template-columns: 1fr; } .result-value { font-size: 2.4rem; } input[type="range"] { cursor: auto; } }
+
+        /* === AWARDS === */
+        .awards-section { padding: 120px 60px; max-width: 1400px; margin: 0 auto; }
+        .awards-section h2 { font-family: 'Space Grotesk', sans-serif; font-size: 1.5rem; font-weight: 700; margin-bottom: 32px; }
+
+        .awards-grid {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 12px; margin-bottom: 48px;
+        }
+
+        .award-card {
+            display: flex; align-items: center; gap: 14px; padding: 18px 22px;
+            background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 12px; transition: all 0.3s;
+        }
+        .award-card:hover { border-color: var(--warm); background: rgba(245, 158, 11, 0.04); transform: translateY(-2px); }
+        .award-card .aw-icon { font-size: 1.2rem; flex-shrink: 0; }
+        .award-card .aw-text { font-size: 0.82rem; font-weight: 500; }
+        .award-card .aw-meta { font-size: 0.68rem; color: var(--dim); margin-top: 2px; }
+
+        .awards-marquee { overflow: hidden; padding: 20px 0; border-top: 1px solid rgba(255,255,255,0.04); border-bottom: 1px solid rgba(255,255,255,0.04); }
+        .marquee-track { display: flex; gap: 48px; animation: scroll 40s linear infinite; width: max-content; }
+        @keyframes scroll { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+        .marquee-item { display: flex; align-items: center; gap: 10px; white-space: nowrap; font-size: 0.78rem; color: var(--dim); }
+        .marquee-item span { font-size: 1rem; }
+
+        /* CTA */
+        .cta-section { padding: 200px 60px; max-width: 1400px; margin: 0 auto; text-align: center; }
+        .cta-section h2 { font-family: 'Space Grotesk', sans-serif; font-size: clamp(2.5rem, 5vw, 4.5rem); font-weight: 700; letter-spacing: -0.04em; margin-bottom: 20px; line-height: 1.05; }
+        .cta-section p { font-size: 1rem; color: var(--dim); max-width: 400px; margin: 0 auto 48px; line-height: 1.7; }
+        .cta-btns { display: flex; justify-content: center; gap: 16px; flex-wrap: wrap; }
+        .cta-btn {
+            display: inline-flex; align-items: center; gap: 10px; padding: 16px 32px;
+            border-radius: 12px; text-decoration: none; font-weight: 500; font-size: 0.9rem;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .cta-btn.fill { background: var(--accent); color: white; }
+        .cta-btn.fill:hover { transform: translateY(-3px); box-shadow: 0 16px 48px rgba(108, 99, 255, 0.3); }
+
+        footer { padding: 32px 60px; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid rgba(255,255,255,0.04); max-width: 1400px; margin: 0 auto; }
+        footer p { font-size: 0.7rem; color: var(--dim); }
+        footer a { color: var(--dim); text-decoration: none; font-size: 0.7rem; transition: color 0.2s; }
+        footer a:hover { color: var(--text); }
+
+        /* Responsive */
+        @media (max-width: 900px) {
+            .hero { grid-template-columns: 1fr; padding: 140px 24px 60px; min-height: auto; gap: 40px; }
+            .hero-right { align-items: flex-start; }
+            .photo-wrapper { width: 160px; height: 160px; }
+            .section-grid { grid-template-columns: 1fr; gap: 24px; }
+            .section-label { position: static; }
+            .section { padding: 100px 24px; }
+            .venn-section { height: 320px; }
+            .venn-circle { width: 160px; height: 160px; font-size: 0.75rem; }
+            body { cursor: auto; }
+            .cursor, .cursor-dot { display: none; }
+            .exp-highlights { flex-wrap: wrap; gap: 16px; }
+            .awards-section { padding: 80px 24px; }
+            .cta-section { padding: 120px 24px; }
+            footer { padding: 32px 24px; }
+        }
+
+        @media (max-width: 600px) {
+            .hero-left h1 { font-size: 3.2rem; }
+            .metric-box .mb-value { font-size: 1.4rem; }
+            .venn-circle { width: 130px; height: 130px; font-size: 0.68rem; }
+            .venn-center { width: 80px; height: 80px; font-size: 0.6rem; }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .hero-left h1 .line span { animation: none; opacity: 1; transform: none; }
+            .hero-subtitle, .hero-statement, .hero-right, .hero-question { animation: none; opacity: 1; }
+            .highlight-word::after { animation: none; transform: scaleX(1); }
+            .marquee-track { animation: none; }
+            .pulse-dot { animation: none; }
+            .photo-wrapper::before { animation: none; }
+            .blink-cursor { animation: none; }
+        }
+
+        a:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+    </style>
+</head>
+<body>
+    <div class="cursor" id="cursor"></div>
+    <div class="cursor-dot" id="cursor-dot"></div>
+    <canvas id="bg-canvas"></canvas>
+
+    <div class="page">
+        <nav>
+            <a href="#" class="nav-name">Albert Lim</a>
+            <div class="nav-right">
+                <a href="#work" class="nav-link">Work</a>
+                <a href="#skills" class="nav-link">Skills</a>
+                <a href="#cost" class="nav-link">The Cost</a>
+                <a href="#contact" class="nav-link">Contact</a>
+                <div class="nav-status"><span class="pulse-dot"></span> Available</div>
+            </div>
+        </nav>
+
+        <section class="hero">
+            <div class="hero-left">
+                <h1>
+                    <span class="line"><span><span class="zoom-word">Hi,</span> <span class="zoom-word">I'm</span> <span class="zoom-word">Albert.</span></span></span>
+                    <span class="line"><span><span class="zoom-word">The</span> <span class="zoom-word highlight-word">LIM</span> <span class="zoom-word">in</span> <span class="zoom-word">the</span></span></span>
+                    <span class="line"><span><span class="zoom-word">loop.</span></span></span>
+                </h1>
+                <div class="hero-pun">// yes, LIM. not LLM. the human-in-the-loop kind, and I never hand off the loop.</div>
+                <div class="hero-subtitle">Senior Solutions Architect</div>
+                <p class="hero-statement">I own the <strong>full technical relationship</strong>. From first architecture whiteboard to $10M+ in realized value. No handoffs. No lost context. My customers grow because I'm still in the room when it matters.</p>
+                <p class="hero-question">
+                    <span class="blink-cursor">></span>
+                    <span class="hover-word">What</span>
+                    <span class="hover-word">does</span>
+                    <span class="hover-word">your</span>
+                    <span class="hover-word">presales</span>
+                    <span class="hover-word">to</span>
+                    <span class="hover-word">postsales</span>
+                    <span class="hover-word">handoff</span>
+                    <span class="hover-word">actually</span>
+                    <span class="hover-word">cost</span>
+                    <span class="hover-word">you?</span>
+                </p>
+            </div>
+            <div class="hero-right">
+                <div class="photo-wrapper">
+                    <img src="albert.jpg" alt="Albert Lim" />
+                </div>
+                <div class="hero-metrics">
+                    <div class="metric-box">
+                        <div class="mb-value">$10M+</div>
+                        <div class="mb-label">Consumption growth driven</div>
+                    </div>
+                    <div class="metric-box">
+                        <div class="mb-value">10+</div>
+                        <div class="mb-label">Years building & selling</div>
+                    </div>
+                    <div class="metric-box">
+                        <div class="mb-value">140+</div>
+                        <div class="mb-label">Production systems managed</div>
+                    </div>
+                    <div class="metric-box">
+                        <div class="mb-value">5x</div>
+                        <div class="mb-label">Awarded in 3 years</div>
+                    </div>
+                </div>
+                <div class="verticals-strip">
+                    <span class="vertical-chip">Fortune 100</span>
+                    <span class="vertical-chip">Global Fortune 500</span>
+                    <span class="vertical-chip">HIPAA</span>
+                    <span class="vertical-chip">FedRAMP High</span>
+                    <span class="vertical-chip">Retail & E-Commerce</span>
+                    <span class="vertical-chip">Consumer Electronics</span>
+                    <span class="vertical-chip">Nonprofit</span>
+                    <span class="vertical-chip">Telecommunications</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 01 -->
+        <section class="section">
+            <div class="section-grid">
+                <div class="section-label">
+                    <div class="sl-num">01</div>
+                    <div class="sl-title">What I Believe</div>
+                </div>
+                <div class="section-content">
+                    <h2>The best customer relationships don't have a seam.</h2>
+                    <p>Most SaaS companies split presales and postsales. The SA builds deep context (pain points, architecture, champions) then disappears after the deal closes. A CSM starts over. The customer notices.</p>
+                    <p><strong>I refuse to work that way.</strong> I carry the technical relationship from the first whiteboard through onboarding, adoption, and expansion. The trust I build during presales becomes compounding interest in postsales.</p>
+                    <p>The result: my accounts don't churn because they feel forgotten. They <strong>expand</strong> because I already know where the next opportunity lives.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 02 -->
+        <section class="section" id="work">
+            <div class="section-grid">
+                <div class="section-label">
+                    <div class="sl-num">02</div>
+                    <div class="sl-title">Experience</div>
+                </div>
+                <div class="section-content">
+                    <h2>From running production to running relationships.</h2>
+                    <div class="exp-blocks">
+                        <div class="exp-block">
+                            <div class="exp-header">
+                                <div class="exp-title">Senior Solutions Architect</div>
+                                <div class="exp-date">2022 – Present</div>
+                            </div>
+                            <div class="exp-company">New Relic</div>
+                            <div class="exp-desc">Full lifecycle ownership of strategic enterprise accounts. I run the PoCs, lead onboarding, own Customer Business Reviews, and drive expansion. My accounts drove President's Club qualifying growth for the sales team. When my customer's VP of Engineering has a question at 2am, they text me, not a support queue.</div>
+                            <div class="exp-highlights">
+                                <div class="exp-hl"><div class="exp-hl-val">$10M+</div><div class="exp-hl-label">Growth driven</div></div>
+                                <div class="exp-hl"><div class="exp-hl-val">5</div><div class="exp-hl-label">Awards earned</div></div>
+                                <div class="exp-hl"><div class="exp-hl-val">Full</div><div class="exp-hl-label">Lifecycle ownership</div></div>
+                            </div>
+                        </div>
+                        <div class="exp-block">
+                            <div class="exp-header">
+                                <div class="exp-title">DevOps Engineer II</div>
+                                <div class="exp-date">2016 – 2022</div>
+                            </div>
+                            <div class="exp-company">Cox Communications</div>
+                            <div class="exp-desc">Led a 10 person team on 140+ production systems. I was the customer of enterprise SaaS tools. I know what it feels like when your vendor doesn't understand your stack. That perspective shapes everything I do now.</div>
+                            <div class="exp-highlights">
+                                <div class="exp-hl"><div class="exp-hl-val">140+</div><div class="exp-hl-label">Systems managed</div></div>
+                                <div class="exp-hl"><div class="exp-hl-val">90%</div><div class="exp-hl-label">Deploy efficiency</div></div>
+                                <div class="exp-hl"><div class="exp-hl-val">10</div><div class="exp-hl-label">Engineers led</div></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 03: Venn Diagram -->
+        <section class="section" id="skills">
+            <div class="section-grid">
+                <div class="section-label">
+                    <div class="sl-num">03</div>
+                    <div class="sl-title">Technical Depth</div>
+                </div>
+                <div class="section-content">
+                    <h2>I speak the language of the people I sell to.</h2>
+                    <p>I ran production. I built the automation. I designed the dashboards. That's why technical buyers trust me, and why I can own the full lifecycle.</p>
+                    <div class="skills-orbital">
+                        <div class="orbital-ring"></div>
+                        <div class="orbital-ring"></div>
+                        <div class="orbital-center">Full Stack</div>
+                        <div class="skill-node cat-obs" style="top:46%;left:6%;background:rgba(108,99,255,0.15);border-color:rgba(108,99,255,0.4);font-weight:600;font-size:0.82rem;padding:10px 20px">Builder</div>
+                        <div class="skill-node cat-gtm" style="top:46%;left:72%;background:rgba(255,107,53,0.12);border-color:rgba(255,107,53,0.35);font-weight:600;font-size:0.82rem;padding:10px 20px">Seller</div>
+                        <div class="skill-node cat-obs" style="top:4%;left:15%">OpenTelemetry</div>
+                        <div class="skill-node cat-obs" style="top:14%;left:43%">APM</div>
+                        <div class="skill-node cat-obs" style="top:5%;left:62%">New Relic</div>
+                        <div class="skill-node cat-obs" style="top:24%;left:1%">Datadog</div>
+                        <div class="skill-node cat-obs" style="top:24%;left:80%">Splunk</div>
+                        <div class="skill-node cat-cloud" style="top:60%;left:3%">Azure</div>
+                        <div class="skill-node cat-cloud" style="top:58%;left:82%">AWS</div>
+                        <div class="skill-node cat-cloud" style="top:80%;left:12%">Terraform</div>
+                        <div class="skill-node cat-gtm" style="top:73%;left:33%">Salesforce</div>
+                        <div class="skill-node cat-gtm" style="top:90%;left:36%">MEDDPICC</div>
+                        <div class="skill-node cat-cloud" style="top:80%;left:54%">Kubernetes</div>
+                        <div class="skill-node cat-cloud" style="top:72%;left:72%">GCP</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 04: CALCULATOR -->
+        <section class="section" id="cost">
+            <div class="section-grid">
+                <div class="section-label">
+                    <div class="sl-num">04</div>
+                    <div class="sl-title">The Handoff Tax</div>
+                </div>
+                <div class="section-content">
+                    <h2>What does your handoff actually cost?</h2>
+                    <p class="calc-intro">I asked this at the top of the page. Here's the math. When presales hands off cold to postsales, context evaporates, relationships reset, and churn climbs. <strong>Move the sliders to your reality.</strong> Every number shows its formula. Nothing comes out of thin air.</p>
+                    <div class="calc-wrap">
+                        <div class="calc-inputs">
+                            <h3>Your numbers</h3>
+                            <div class="input-group">
+                                <div class="input-label"><span>Average deal size (ARR)</span><span class="input-value" id="deal-display">$250K</span></div>
+                                <input type="range" id="deal-size" min="50" max="2000" value="250" step="25">
+                            </div>
+                            <div class="input-group">
+                                <div class="input-label"><span>New deals per quarter</span><span class="input-value" id="deals-display">8</span></div>
+                                <input type="range" id="deals-qty" min="1" max="30" value="8" step="1">
+                            </div>
+                            <div class="input-group">
+                                <div class="input-label"><span>Onboarding ramp time</span><span class="input-value" id="ramp-display">12 weeks</span></div>
+                                <input type="range" id="ramp-time" min="2" max="52" value="12" step="1">
+                            </div>
+                            <div class="input-group">
+                                <div class="input-label"><span>Technical stakeholders per account</span><span class="input-value" id="stakeholders-display">5</span></div>
+                                <input type="range" id="stakeholders" min="1" max="15" value="5" step="1">
+                            </div>
+                            <div class="input-group">
+                                <div class="input-label"><span>Current logo churn rate</span><span class="input-value" id="churn-display">12%</span></div>
+                                <input type="range" id="churn-rate" min="2" max="40" value="12" step="1">
+                            </div>
+                        </div>
+                        <div class="calc-results">
+                            <h3>The tax you're paying</h3>
+                            <div class="result-card">
+                                <div class="result-label">Revenue at risk per year</div>
+                                <div class="result-value risk" id="revenue-risk">$960K</div>
+                                <div class="result-detail">Annual revenue exposed to churn that a cold handoff amplifies.</div>
+                                <div class="result-formula">
+                                    <span class="formula-label">How this is calculated</span>
+                                    <span id="formula-risk"></span>
+                                </div>
+                            </div>
+                            <div class="result-card">
+                                <div class="result-label">What single-owner continuity recovers</div>
+                                <div class="result-value save" id="recoverable">$576K</div>
+                                <div class="result-detail">What you keep when one person owns the relationship from demo to expansion, removing the handoff multiplier.</div>
+                                <div class="result-formula">
+                                    <span class="formula-label">How this is calculated</span>
+                                    <span id="formula-recover"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <p class="calc-method"><strong>The methodology, in the open:</strong> this is my model, not a vendor stat. Every technical stakeholder whose relationship doesn't survive the handoff adds about 3% of incremental churn risk (cold relationships are independent failure points, and they compound), capped at a 55% effective rate. The 60% recovery figure is a deliberately conservative estimate of what single owner continuity claws back. The economics underneath are well established: Bain &amp; Company found that a 5% lift in retention can raise profits 25 to 95% (Reichheld, <em>The Loyalty Effect</em>), and both Gainsight and TSIA tie customer success continuity directly to net revenue retention and expansion. Treat the output as directional, not a guarantee. The point still stands: the seam has a price, and I am the person who removes it.</p>
+                    <p class="calc-sources"><strong>Sources:</strong> <a href="https://www.bain.com/insights/books/the-loyalty-effect/" target="_blank" rel="noopener">Bain &amp; Company, The Loyalty Effect</a> · <a href="https://www.gainsight.com/blog/net-revenue-retention-drives-market-cap/" target="_blank" rel="noopener">Gainsight on net revenue retention</a> · <a href="https://www.tsia.com/blog/4-phases-of-customer-success-maturity" target="_blank" rel="noopener">TSIA on customer success maturity</a></p>
+                </div>
+            </div>
+        </section>
+
+        <!-- AWARDS -->
+        <section class="awards-section">
+            <h2>Awards</h2>
+            <div class="awards-grid">
+                <div class="award-card"><span class="aw-icon">&#127941;</span><div><div class="aw-text">One Team Award</div><div class="aw-meta">New Relic · Oct 2025</div></div></div>
+                <div class="award-card"><span class="aw-icon">&#127942;</span><div><div class="aw-text">Competitive Spirit Award</div><div class="aw-meta">New Relic · Oct 2024</div></div></div>
+                <div class="award-card"><span class="aw-icon">&#11088;</span><div><div class="aw-text">Star TAM Award</div><div class="aw-meta">New Relic · Feb 2024</div></div></div>
+                <div class="award-card"><span class="aw-icon">&#128293;</span><div><div class="aw-text">Hot POD Award</div><div class="aw-meta">New Relic · Nov 2023</div></div></div>
+                <div class="award-card"><span class="aw-icon">&#127775;</span><div><div class="aw-text">Rising Star Award</div><div class="aw-meta">New Relic · Nov 2022</div></div></div>
+            </div>
+            <h2 style="margin-top:48px;">Certifications</h2>
+            <div class="awards-grid">
+                <div class="award-card"><span class="aw-icon">&#9997;&#65039;</span><div><div class="aw-text">OTel Certified Associate, Exam Contributor</div><div class="aw-meta">Linux Foundation · Dec 2024</div></div></div>
+                <div class="award-card"><span class="aw-icon">&#9889;</span><div><div class="aw-text">Certified Reliability Engineer Professional</div><div class="aw-meta">New Relic · Oct 2024</div></div></div>
+            </div>
+            <div class="awards-marquee">
+                <div class="marquee-track">
+                    <div class="marquee-item"><span>&#127941;</span> One Team Award 2025</div>
+                    <div class="marquee-item"><span>&#127942;</span> Competitive Spirit 2024</div>
+                    <div class="marquee-item"><span>&#11088;</span> Star TAM 2024</div>
+                    <div class="marquee-item"><span>&#128293;</span> Hot POD 2023</div>
+                    <div class="marquee-item"><span>&#127775;</span> Rising Star 2022</div>
+                    <div class="marquee-item"><span>&#9997;&#65039;</span> OTel Certified · Linux Foundation</div>
+                    <div class="marquee-item"><span>&#9889;</span> NR Reliability Engineer Professional</div>
+                    <div class="marquee-item"><span>&#127941;</span> One Team Award 2025</div>
+                    <div class="marquee-item"><span>&#127942;</span> Competitive Spirit 2024</div>
+                    <div class="marquee-item"><span>&#11088;</span> Star TAM 2024</div>
+                    <div class="marquee-item"><span>&#128293;</span> Hot POD 2023</div>
+                    <div class="marquee-item"><span>&#127775;</span> Rising Star 2022</div>
+                    <div class="marquee-item"><span>&#9997;&#65039;</span> OTel Certified · Linux Foundation</div>
+                    <div class="marquee-item"><span>&#9889;</span> NR Reliability Engineer Professional</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- CTA -->
+        <section class="cta-section" id="contact">
+            <h2>Let's talk.</h2>
+            <p>I'm looking for my next challenge. A team that values full-lifecycle technical ownership and wants someone who ships results, not slide decks.</p>
+            <div class="cta-btns">
+                <a href="https://www.linkedin.com/in/LimAlbertTan" class="cta-btn fill" target="_blank" rel="noopener">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+                    Connect on LinkedIn
+                </a>
+            </div>
+        </section>
+
+        <footer>
+            <p>Albert Lim</p>
+            <a href="https://www.linkedin.com/in/LimAlbertTan" target="_blank">LinkedIn</a>
+        </footer>
+    </div>
+
+    <script>
+        // Custom cursor
+        const cursor = document.getElementById('cursor');
+        const dot = document.getElementById('cursor-dot');
+        let mouseX = 0, mouseY = 0, cursorX = 0, cursorY = 0;
+        document.addEventListener('mousemove', (e) => { mouseX = e.clientX; mouseY = e.clientY; dot.style.left = mouseX + 'px'; dot.style.top = mouseY + 'px'; });
+        function animateCursor() { cursorX += (mouseX - cursorX) * 0.12; cursorY += (mouseY - cursorY) * 0.12; cursor.style.left = cursorX + 'px'; cursor.style.top = cursorY + 'px'; requestAnimationFrame(animateCursor); }
+        animateCursor();
+        document.querySelectorAll('a, .metric-box, .exp-block, .skill-node, .vertical-chip, .award-card, .hover-word, .zoom-word').forEach(el => { el.addEventListener('mouseenter', () => cursor.classList.add('hover')); el.addEventListener('mouseleave', () => cursor.classList.remove('hover')); });
+
+        // Background canvas
+        const canvas = document.getElementById('bg-canvas');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+        function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+        resize(); window.addEventListener('resize', resize);
+        class Particle {
+            constructor() { this.x = Math.random() * canvas.width; this.y = Math.random() * canvas.height; this.vx = (Math.random() - 0.5) * 0.3; this.vy = (Math.random() - 0.5) * 0.3; this.radius = Math.random() * 1.5 + 0.5; }
+            update() { this.x += this.vx; this.y += this.vy; if (this.x < 0 || this.x > canvas.width) this.vx *= -1; if (this.y < 0 || this.y > canvas.height) this.vy *= -1; }
+            draw() { ctx.beginPath(); ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2); ctx.fillStyle = 'rgba(108, 99, 255, 0.4)'; ctx.fill(); }
+        }
+        for (let i = 0; i < 60; i++) particles.push(new Particle());
+        let pmouseX = canvas.width / 2, pmouseY = canvas.height / 2;
+        document.addEventListener('mousemove', (e) => { pmouseX = e.clientX; pmouseY = e.clientY; });
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            for (let i = 0; i < particles.length; i++) {
+                const p = particles[i];
+                const dx = pmouseX - p.x, dy = pmouseY - p.y, dist = Math.sqrt(dx*dx+dy*dy);
+                if (dist < 200) { p.vx += dx * 0.00003; p.vy += dy * 0.00003; }
+                p.vx *= 0.999; p.vy *= 0.999; p.update(); p.draw();
+                for (let j = i + 1; j < particles.length; j++) {
+                    const dx2 = p.x - particles[j].x, dy2 = p.y - particles[j].y, d = Math.sqrt(dx2*dx2+dy2*dy2);
+                    if (d < 150) { ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(particles[j].x, particles[j].y); ctx.strokeStyle = `rgba(108,99,255,${0.08*(1-d/150)})`; ctx.lineWidth = 0.5; ctx.stroke(); }
+                }
+            }
+            requestAnimationFrame(animate);
+        }
+        animate();
+
+        // Scroll reveal
+        const revealObserver = new IntersectionObserver((entries) => { entries.forEach(entry => { if (entry.isIntersecting) { entry.target.style.opacity = '1'; entry.target.style.transform = 'translateY(0)'; } }); }, { threshold: 0.1, rootMargin: '0px 0px -60px 0px' });
+        document.querySelectorAll('.section-content, .exp-block, .awards-section').forEach(el => { el.style.opacity = '0'; el.style.transform = 'translateY(40px)'; el.style.transition = 'opacity 0.8s cubic-bezier(0.16,1,0.3,1), transform 0.8s cubic-bezier(0.16,1,0.3,1)'; revealObserver.observe(el); });
+
+        // === Handoff Tax calculator ===
+        const calcInputs = {
+            dealSize: document.getElementById('deal-size'),
+            dealsQty: document.getElementById('deals-qty'),
+            rampTime: document.getElementById('ramp-time'),
+            stakeholders: document.getElementById('stakeholders'),
+            churnRate: document.getElementById('churn-rate')
+        };
+        function fmt(num) {
+            if (num >= 1000000) return '$' + (num / 1000000).toFixed(1) + 'M';
+            if (num >= 1000) return '$' + Math.round(num / 1000) + 'K';
+            return '$' + Math.round(num);
+        }
+        function calculate() {
+            const dealSize = parseInt(calcInputs.dealSize.value) * 1000;
+            const dealsQty = parseInt(calcInputs.dealsQty.value);
+            const rampTime = parseInt(calcInputs.rampTime.value);
+            const stakeholders = parseInt(calcInputs.stakeholders.value);
+            const churnRate = parseInt(calcInputs.churnRate.value) / 100;
+
+            document.getElementById('deal-display').textContent = fmt(dealSize);
+            document.getElementById('deals-display').textContent = dealsQty;
+            document.getElementById('ramp-display').textContent = rampTime + ' weeks';
+            document.getElementById('stakeholders-display').textContent = stakeholders;
+            document.getElementById('churn-display').textContent = calcInputs.churnRate.value + '%';
+
+            const annualRevenue = dealSize * dealsQty * 4;
+            const handoffMultiplier = 1 + ((stakeholders - 1) * 0.03);
+            const effectiveChurn = Math.min(churnRate * handoffMultiplier, 0.55);
+            const revenueAtRisk = annualRevenue * effectiveChurn;
+            const recoveryRate = 0.60;
+            const recoverable = revenueAtRisk * recoveryRate;
+
+            document.getElementById('revenue-risk').textContent = fmt(revenueAtRisk);
+            document.getElementById('recoverable').textContent = fmt(recoverable);
+            document.getElementById('formula-risk').textContent =
+                `(${fmt(dealSize)} × ${dealsQty} deals × 4 quarters) × (${calcInputs.churnRate.value}% churn × ${handoffMultiplier.toFixed(2)} handoff multiplier) = ${fmt(revenueAtRisk)}`;
+            document.getElementById('formula-recover').textContent =
+                `${fmt(revenueAtRisk)} at risk × 60% single-owner recovery rate = ${fmt(recoverable)} kept annually`;
+        }
+        Object.values(calcInputs).forEach(input => input.addEventListener('input', calculate));
+        calculate();
+    </script>
+</body>
+</html>
